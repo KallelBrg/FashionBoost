@@ -11,12 +11,12 @@ export class UserController {
 
   @Get('me')
   getMe(@Request() req) {
-    return this.userService.findMe(req.user.userId);
+    return this.userService.findMe(req.user.id);
   }
 
   @Patch('me')
   updateMe(@Request() req, @Body() dto: UpdateUserDto) {
-    return this.userService.update(req.user.userId, dto);
+    return this.userService.update(req.user.id, dto);
   }
 
   @Get()
