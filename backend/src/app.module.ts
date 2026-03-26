@@ -12,6 +12,7 @@ import { ProductModule } from './product/product.module';
 import { CustomerModule } from './customer/customer.module';
 import { SaleModule } from './sale/sale.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
+import { CouponModule } from './coupon/coupon.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
     CustomerModule,
     SaleModule,
     LoyaltyModule,
+    CouponModule,
   ],
   controllers: [AppController],
   providers: [AppService],
