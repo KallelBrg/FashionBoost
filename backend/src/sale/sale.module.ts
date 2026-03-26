@@ -8,12 +8,14 @@ import { SaleService } from './sale.service';
 import { SaleController } from './sale.controller';
 import { AuthModule } from '../auth/auth.module';
 import { StoreModule } from '../store/store.module';
+import { LoyaltyModule } from '../loyalty/loyalty.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Sale, SaleItem, Product, Customer]),
     AuthModule,
     StoreModule,
+    LoyaltyModule,
   ],
   controllers: [SaleController],
   providers: [SaleService],

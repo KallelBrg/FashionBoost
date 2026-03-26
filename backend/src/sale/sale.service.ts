@@ -11,6 +11,7 @@ import { Product } from '../entities/product.entity';
 import { Customer } from '../entities/customer.entity';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleStatusDto } from './dto/update-sale-status.dto';
+import { LoyaltyService } from '../loyalty/loyalty.service';
 
 @Injectable()
 export class SaleService {
@@ -24,6 +25,7 @@ export class SaleService {
     @InjectRepository(Customer)
     private customerRepository: Repository<Customer>,
     private dataSource: DataSource,
+    private loyaltyService: LoyaltyService,
   ) {}
 
   async create(storeId: string, userId: string, dto: CreateSaleDto): Promise<Sale> {
@@ -79,6 +81,17 @@ export class SaleService {
           saleId: savedSale.id,
         });
         await manager.save(SaleItem, saleItem);
+      }
+
+      const totalEarnedPoints = saleItemsData.reduce((sum, item) => sum + (item.earnedPoints || 0), 0);
+      if (totalEarnedPoints > 0) {
+        await this.loyaltyService.awardPoints(
+          storeId,
+          dto.customerId,
+          totalEarnedPoints,
+          `Pontos pela venda #${savedSale.id}`,
+          savedSale.id,
+        );
       }
 
       const result = await manager.findOne(Sale, {
