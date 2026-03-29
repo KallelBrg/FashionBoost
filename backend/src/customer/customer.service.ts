@@ -32,6 +32,7 @@ export class CustomerService {
   async findAll(storeId: string): Promise<Customer[]> {
     return this.customerRepository.find({
       where: { storeId },
+      relations: ['loyalty', 'loyalty.loyaltyLevel'],
       order: { name: 'ASC' },
     });
   }

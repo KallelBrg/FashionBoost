@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
 import { Product } from '../entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -19,7 +21,7 @@ export class ProductService {
 
   async findAll(storeId: string): Promise<Product[]> {
     return this.productRepository.find({
-      where: { storeId },
+      where: { storeId, isActive: true },
       relations: ['category'],
       order: { name: 'ASC' },
     });
@@ -39,6 +41,18 @@ export class ProductService {
     if (!product) throw new NotFoundException('Produto não encontrado');
     Object.assign(product, dto);
     return this.productRepository.save(product);
+  }
+
+  async removeImage(id: string, storeId: string): Promise<Product> {
+    const product = await this.productRepository.findOne({ where: { id, storeId } });
+    if (!product) throw new NotFoundException('Produto não encontrado');
+    if (product.imageUrl) {
+      const filePath = join(__dirname, '..', '..', product.imageUrl);
+      unlink(filePath).catch(() => {});
+      product.imageUrl = null;
+      await this.productRepository.save(product);
+    }
+    return product;
   }
 
   async remove(id: string, storeId: string): Promise<void> {

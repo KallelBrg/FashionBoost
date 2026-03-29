@@ -38,6 +38,12 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   stockQuantity: number;
 
+  @Column({ type: 'simple-array', nullable: true })
+  sizes: string[];
+
+  @Column({ type: 'varchar', nullable: true })
+  imageUrl: string | null;
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
