@@ -5,7 +5,7 @@ import Image from "next/image";
 import api from "@/lib/api";
 import { Fragment } from "react";
 import {
-  Plus, X, ShoppingBag, Search, Trash2, ChevronDown, ChevronUp, Package,
+  Plus, X, ShoppingBag, Search, Trash2, ChevronDown, ChevronUp, Package, Tag,
 } from "lucide-react";
 
 const BACKEND_URL = "http://localhost:3001";
@@ -45,6 +45,10 @@ export default function SalesPage() {
   const [customerSearch, setCustomerSearch] = useState("");
   const [productSearch, setProductSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saleError, setSaleError] = useState("");
 
@@ -76,8 +80,19 @@ export default function SalesPage() {
     setCustomerSearch("");
     setProductSearch("");
     setCart([]);
+    setCouponCode("");
+    setCouponDiscount(0);
+    setCouponError("");
+    setCouponApplied(false);
     setSaleError("");
     setModalOpen(true);
+  }
+
+  function removeCoupon() {
+    setCouponCode("");
+    setCouponDiscount(0);
+    setCouponError("");
+    setCouponApplied(false);
   }
 
   function addToCart(product: Product) {
@@ -103,6 +118,31 @@ export default function SalesPage() {
   const cartTotal = cart.reduce((sum, i) => sum + Number(i.product.price) * i.quantity, 0);
   const cartPoints = cart.reduce((sum, i) => sum + i.product.pointsValue * i.quantity, 0);
 
+  async function handleApplyCoupon() {
+    if (!couponCode.trim()) return;
+    if (!selectedCustomer) { setCouponError("Selecione um cliente primeiro."); return; }
+    setCouponError("");
+    try {
+      const res = await api.get(`/coupons/${couponCode.trim().toUpperCase()}`);
+      const c = res.data;
+      if (c.customerId !== selectedCustomer.id) {
+        setCouponError("Este cupom não pertence ao cliente selecionado.");
+        return;
+      }
+      if (c.isUsed) { setCouponError("Cupom já foi utilizado."); return; }
+      if (c.expiresAt && new Date() > new Date(c.expiresAt)) {
+        setCouponError("Cupom expirado."); return;
+      }
+      let discount = 0;
+      if (c.type === "fixed_discount") discount = Number(c.discountValue);
+      else if (c.type === "percentage_discount") discount = cartTotal * (Number(c.discountValue) / 100);
+      setCouponDiscount(discount);
+      setCouponApplied(true);
+    } catch {
+      setCouponError("Cupom não encontrado.");
+    }
+  }
+
   async function handleCreateSale() {
     if (!selectedCustomer) { setSaleError("Selecione um cliente."); return; }
     if (cart.length === 0) { setSaleError("Adicione pelo menos um produto."); return; }
@@ -113,6 +153,7 @@ export default function SalesPage() {
       await api.post("/sales", {
         customerId: selectedCustomer.id,
         items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+        couponCode: couponApplied ? couponCode.trim().toUpperCase() : undefined,
       });
       await fetchData();
       setModalOpen(false);
@@ -149,13 +190,13 @@ export default function SalesPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-10">
         <div>
-          <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
+          <p className="text-accent text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
           <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold">Vendas</h1>
           <p className="text-white/40 text-sm mt-1">Registre e acompanhe as vendas da sua loja.</p>
         </div>
         <button
           onClick={openModal}
-          className="flex items-center gap-2 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors"
+          className="flex items-center gap-2 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors"
         >
           <Plus size={16} />
           Nova Venda
@@ -165,7 +206,7 @@ export default function SalesPage() {
       {/* Sales Table */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <div className="w-6 h-6 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : sales.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-white/30 gap-3">
@@ -245,7 +286,7 @@ export default function SalesPage() {
                               <span className="text-white/40">{item.quantity}x</span>
                               <span className="text-white/50 w-24 text-right">R$ {parseFloat(item.unitPrice as unknown as string).toFixed(2).replace(".", ",")}</span>
                               <span className="font-medium w-24 text-right">R$ {parseFloat(item.totalPrice as unknown as string).toFixed(2).replace(".", ",")}</span>
-                              <span className="text-[#D4AF37] text-xs w-20 text-right">+{item.earnedPoints} pts</span>
+                              <span className="text-accent text-xs w-20 text-right">+{item.earnedPoints} pts</span>
                             </div>
                           ))}
                           <div className="border-t border-white/5 pt-2 flex justify-end gap-8 text-xs text-white/40 mt-2">
@@ -284,7 +325,7 @@ export default function SalesPage() {
                 <div>
                   <label className="block text-xs text-white/50 uppercase tracking-widest mb-2">Cliente *</label>
                   {selectedCustomer ? (
-                    <div className="flex items-center justify-between bg-white/5 border border-[#D4AF37]/30 px-4 py-2.5">
+                    <div className="flex items-center justify-between bg-white/5 border border-accent/30 px-4 py-2.5">
                       <div>
                         <p className="text-sm font-medium">{selectedCustomer.name}</p>
                         <p className="text-xs text-white/40">{selectedCustomer.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}</p>
@@ -302,7 +343,7 @@ export default function SalesPage() {
                           value={customerSearch}
                           onChange={(e) => setCustomerSearch(e.target.value)}
                           placeholder="Buscar cliente..."
-                          className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                          className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                         />
                       </div>
                       <div className="border border-white/5 max-h-36 overflow-y-auto">
@@ -334,7 +375,7 @@ export default function SalesPage() {
                       value={productSearch}
                       onChange={(e) => setProductSearch(e.target.value)}
                       placeholder="Buscar produto..."
-                      className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                      className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                     />
                   </div>
                   <div className="border border-white/5 max-h-52 overflow-y-auto">
@@ -361,9 +402,9 @@ export default function SalesPage() {
                           </div>
                           <div className="text-right flex-shrink-0">
                             <p className="text-sm font-medium">R$ {parseFloat(p.price as unknown as string).toFixed(2).replace(".", ",")}</p>
-                            <p className="text-xs text-[#D4AF37]">{p.pointsValue} pts</p>
+                            <p className="text-xs text-accent">{p.pointsValue} pts</p>
                           </div>
-                          {inCart && <span className="text-xs text-[#D4AF37] ml-1">({inCart.quantity})</span>}
+                          {inCart && <span className="text-xs text-accent ml-1">({inCart.quantity})</span>}
                         </button>
                       );
                     })}
@@ -409,17 +450,56 @@ export default function SalesPage() {
                   </div>
                 )}
 
+                {/* Coupon */}
+                <div className="border-t border-white/5 pt-4">
+                  <p className="text-xs text-white/50 uppercase tracking-widest mb-2">Cupom</p>
+                  {couponApplied ? (
+                    <div className="flex items-center justify-between bg-accent/10 border border-accent/30 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Tag size={12} className="text-accent" />
+                        <span className="text-xs font-mono text-accent">{couponCode.toUpperCase()}</span>
+                      </div>
+                      <button onClick={removeCoupon} className="text-white/30 hover:text-white">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                        placeholder="CÓDIGO DO CUPOM"
+                        className="w-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white font-mono placeholder:text-white/20 focus:outline-none focus:border-accent/50 uppercase"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        className="w-full text-xs py-1.5 border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-colors"
+                      >
+                        Aplicar Cupom
+                      </button>
+                    </div>
+                  )}
+                  {couponError && <p className="text-red-400 text-xs mt-1">{couponError}</p>}
+                </div>
+
                 <div className="border-t border-white/5 pt-4 space-y-1 text-sm">
                   <div className="flex justify-between text-white/40 text-xs">
                     <span>Subtotal</span>
                     <span>R$ {cartTotal.toFixed(2).replace(".", ",")}</span>
                   </div>
+                  {couponApplied && couponDiscount > 0 && (
+                    <div className="flex justify-between text-green-400 text-xs">
+                      <span>Desconto</span>
+                      <span>− R$ {couponDiscount.toFixed(2).replace(".", ",")}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-medium">
                     <span>Total</span>
-                    <span>R$ {cartTotal.toFixed(2).replace(".", ",")}</span>
+                    <span>R$ {Math.max(0, cartTotal - couponDiscount).toFixed(2).replace(".", ",")}</span>
                   </div>
                   {cartPoints > 0 && (
-                    <div className="flex justify-between text-[#D4AF37] text-xs">
+                    <div className="flex justify-between text-accent text-xs">
                       <span>Pontos a ganhar</span>
                       <span>+{cartPoints} pts</span>
                     </div>
@@ -431,7 +511,7 @@ export default function SalesPage() {
                 <button
                   onClick={handleCreateSale}
                   disabled={saving}
-                  className="mt-4 w-full bg-[#D4AF37] text-black py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors disabled:opacity-50"
+                  className="mt-4 w-full bg-accent text-black py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
                 >
                   {saving ? "Registrando..." : "Confirmar Venda"}
                 </button>

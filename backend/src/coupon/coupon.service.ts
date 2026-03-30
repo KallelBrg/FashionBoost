@@ -79,6 +79,7 @@ export class CouponService {
   async findAll(storeId: string): Promise<Coupon[]> {
     return this.couponRepository.find({
       where: { storeId },
+      relations: ['customer'],
       order: { createdAt: 'DESC' },
     });
   }

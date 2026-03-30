@@ -9,6 +9,7 @@ import { Sale, SaleStatus } from '../entities/sale.entity';
 import { SaleItem } from '../entities/sale-item.entity';
 import { Product } from '../entities/product.entity';
 import { Customer } from '../entities/customer.entity';
+import { Coupon, CouponType } from '../entities/coupon.entity';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleStatusDto } from './dto/update-sale-status.dto';
 import { LoyaltyService } from '../loyalty/loyalty.service';
@@ -24,6 +25,8 @@ export class SaleService {
     private productRepository: Repository<Product>,
     @InjectRepository(Customer)
     private customerRepository: Repository<Customer>,
+    @InjectRepository(Coupon)
+    private couponRepository: Repository<Coupon>,
     private dataSource: DataSource,
     private loyaltyService: LoyaltyService,
   ) {}
@@ -33,6 +36,22 @@ export class SaleService {
       where: { id: dto.customerId, storeId },
     });
     if (!customer) throw new NotFoundException('Cliente não encontrado');
+
+    // Validate coupon before entering transaction
+    let coupon: Coupon | null = null;
+    if (dto.couponCode) {
+      coupon = await this.couponRepository.findOne({
+        where: { code: dto.couponCode.toUpperCase(), storeId },
+      });
+      if (!coupon) throw new NotFoundException('Cupom não encontrado');
+      if (coupon.customerId !== dto.customerId) {
+        throw new BadRequestException('Este cupom não pertence ao cliente selecionado');
+      }
+      if (coupon.isUsed) throw new BadRequestException('Cupom já foi utilizado');
+      if (coupon.expiresAt && new Date() > new Date(coupon.expiresAt)) {
+        throw new BadRequestException('Cupom expirado');
+      }
+    }
 
     return this.dataSource.transaction(async (manager) => {
       let subtotal = 0;
@@ -63,13 +82,32 @@ export class SaleService {
         });
       }
 
+      // Calculate discount
+      let discountAmount = 0;
+      if (coupon) {
+        if (coupon.type === CouponType.FIXED_DISCOUNT) {
+          discountAmount = Math.min(Number(coupon.discountValue), subtotal);
+        } else if (coupon.type === CouponType.PERCENTAGE_DISCOUNT) {
+          discountAmount = subtotal * (Number(coupon.discountValue) / 100);
+        }
+        // GIFT type: no monetary discount, just a reward description
+
+        // Mark coupon as used inside transaction
+        await manager.update(Coupon, coupon.id, {
+          isUsed: true,
+          usedAt: new Date(),
+        });
+      }
+
+      const totalAmount = Math.max(0, subtotal - discountAmount);
+
       const sale = manager.create(Sale, {
         storeId,
         customerId: dto.customerId,
         userId,
         subtotalAmount: subtotal,
-        discountAmount: 0,
-        totalAmount: subtotal,
+        discountAmount,
+        totalAmount,
         status: SaleStatus.ACTIVE,
       });
 
@@ -98,7 +136,7 @@ export class SaleService {
         where: { id: savedSale.id },
         relations: ['items', 'items.product', 'customer'],
       });
-      return result!
+      return result!;
     });
   }
 

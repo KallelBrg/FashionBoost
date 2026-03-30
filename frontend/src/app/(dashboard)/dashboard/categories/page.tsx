@@ -89,13 +89,13 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-10">
         <div>
-          <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
+          <p className="text-accent text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
           <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold">Categorias</h1>
           <p className="text-white/40 text-sm mt-1">Organize seus produtos por categoria.</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors"
+          className="flex items-center gap-2 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors"
         >
           <Plus size={16} />
           Nova Categoria
@@ -105,7 +105,7 @@ export default function CategoriesPage() {
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <div className="w-6 h-6 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : categories.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-white/30 gap-3">
@@ -170,7 +170,7 @@ export default function CategoriesPage() {
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSave()}
                   placeholder="Ex: Camisetas, Calças..."
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                   autoFocus
                 />
                 {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
@@ -187,7 +187,7 @@ export default function CategoriesPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors disabled:opacity-50"
+                className="flex-1 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
               >
                 {saving ? "Salvando..." : "Salvar"}
               </button>

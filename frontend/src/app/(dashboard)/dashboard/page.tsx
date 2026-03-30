@@ -91,7 +91,7 @@ export default function DashboardPage() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-10">
-        <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-1">Visão Geral</p>
+        <p className="text-accent text-xs tracking-[0.3em] uppercase mb-1">Visão Geral</p>
         <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold">
           Olá, {user?.name?.split(" ")[0]}.
         </h1>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
       {/* Metric Cards */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <div className="w-6 h-6 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -112,7 +112,7 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <p className="text-xs text-white/40 uppercase tracking-widest">{label}</p>
-                <Icon size={16} strokeWidth={1.5} className="text-[#D4AF37]" />
+                <Icon size={16} strokeWidth={1.5} className="text-accent" />
               </div>
               <div>
                 <p className="text-3xl font-bold font-[family-name:var(--font-playfair)]">{value}</p>

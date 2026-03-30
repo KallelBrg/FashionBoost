@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsInt, IsUUID, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsInt, IsOptional, IsString, IsUUID, Min, ValidateNested } from 'class-validator';
 
 export class CreateSaleItemDto {
   @IsNotEmpty()
@@ -21,4 +21,8 @@ export class CreateSaleDto {
   @ValidateNested({ each: true })
   @Type(() => CreateSaleItemDto)
   items: CreateSaleItemDto[];
+
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
 }

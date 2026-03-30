@@ -38,6 +38,9 @@ export class Store {
   @Column({ type: 'varchar', nullable: true })
   instagram: string;
 
+  @Column({ type: 'varchar', nullable: true, default: '#D4AF37' })
+  primaryColor: string;
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 

@@ -1,10 +1,13 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-accent: var(--accent);
+}
+
 :root {
+  --accent: #D4AF37;
   --background: #0a0a0a;
   --foreground: #ededed;
-  --gold: #D4AF37;
-  --gold-light: #F0D060;
 }
 
 body {

@@ -52,7 +52,7 @@ export default function Sidebar() {
         >
           {storeName || "Minha Loja"}
         </Link>
-        <p className="text-[#D4AF37] text-[10px] tracking-widest uppercase mt-0.5">by FashionBoost</p>
+        <p className="text-accent text-[10px] tracking-widest uppercase mt-0.5">by FashionBoost</p>
       </div>
 
       {/* Nav */}
@@ -65,7 +65,7 @@ export default function Sidebar() {
               href={href}
               className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-colors rounded-none ${
                 active
-                  ? "text-[#D4AF37] bg-[#D4AF37]/5 border-l-2 border-[#D4AF37]"
+                  ? "text-accent bg-accent/5 border-l-2 border-accent"
                   : "text-white/50 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
               }`}
             >

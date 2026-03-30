@@ -147,13 +147,13 @@ export default function CustomersPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-10">
         <div>
-          <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
+          <p className="text-accent text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
           <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold">Clientes</h1>
           <p className="text-white/40 text-sm mt-1">Gerencie os clientes da sua loja.</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors"
+          className="flex items-center gap-2 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors"
         >
           <Plus size={16} />
           Novo Cliente
@@ -168,14 +168,14 @@ export default function CustomersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nome, CPF, telefone..."
-          className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+          className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
         />
       </div>
 
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <div className="w-6 h-6 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-white/30 gap-3">
@@ -207,14 +207,14 @@ export default function CustomersPage() {
                   <td className="px-6 py-4 text-white/50">{c.email || "—"}</td>
                   <td className="px-6 py-4 text-center">
                     {c.loyalty?.loyaltyLevel?.name ? (
-                      <span className="text-xs px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37]">
+                      <span className="text-xs px-2 py-1 bg-accent/10 text-accent">
                         {c.loyalty?.loyaltyLevel?.name}
                       </span>
                     ) : (
                       <span className="text-white/20 text-xs">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right text-[#D4AF37] font-medium">
+                  <td className="px-6 py-4 text-right text-accent font-medium">
                     {c.loyalty?.totalPoints ?? "—"}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -252,7 +252,7 @@ export default function CustomersPage() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setField("name", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                   placeholder="Nome completo"
                   autoFocus
                 />
@@ -264,7 +264,7 @@ export default function CustomersPage() {
                   type="text"
                   value={form.cpf}
                   onChange={(e) => setField("cpf", formatCpf(e.target.value))}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50 font-mono"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50 font-mono"
                   placeholder="000.000.000-00"
                 />
               </div>
@@ -275,7 +275,7 @@ export default function CustomersPage() {
                   type="text"
                   value={form.phone}
                   onChange={(e) => setField("phone", formatPhone(e.target.value))}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                   placeholder="(00) 00000-0000"
                 />
               </div>
@@ -286,7 +286,7 @@ export default function CustomersPage() {
                   type="email"
                   value={form.email}
                   onChange={(e) => setField("email", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                   placeholder="email@exemplo.com"
                 />
               </div>
@@ -304,7 +304,7 @@ export default function CustomersPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors disabled:opacity-50"
+                className="flex-1 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
               >
                 {saving ? "Salvando..." : "Salvar"}
               </button>

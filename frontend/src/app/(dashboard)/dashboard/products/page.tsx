@@ -197,13 +197,13 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-10">
         <div>
-          <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
+          <p className="text-accent text-xs tracking-[0.3em] uppercase mb-1">Gestão</p>
           <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold">Produtos</h1>
           <p className="text-white/40 text-sm mt-1">Gerencie o catálogo de produtos da sua loja.</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors"
+          className="flex items-center gap-2 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors"
         >
           <Plus size={16} />
           Novo Produto
@@ -213,7 +213,7 @@ export default function ProductsPage() {
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <div className="w-6 h-6 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-white/30 gap-3">
@@ -265,7 +265,7 @@ export default function ProductsPage() {
                   <td className="px-6 py-4 text-white/50">{p.category?.name || "—"}</td>
                   <td className="px-6 py-4 text-right">R$ {parseFloat(p.price as unknown as string).toFixed(2).replace(".", ",")}</td>
                   <td className="px-6 py-4 text-right">{p.stockQuantity}</td>
-                  <td className="px-6 py-4 text-right text-[#D4AF37]">{p.pointsValue}</td>
+                  <td className="px-6 py-4 text-right text-accent">{p.pointsValue}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">
                       {p.sizes?.length > 0
@@ -317,7 +317,7 @@ export default function ProductsPage() {
                 <label className="block text-xs text-white/50 uppercase tracking-widest mb-2">Foto do Produto</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative cursor-pointer border border-dashed border-white/10 hover:border-[#D4AF37]/40 transition-colors flex items-center justify-center h-36 bg-white/[0.02]"
+                  className="relative cursor-pointer border border-dashed border-white/10 hover:border-accent/40 transition-colors flex items-center justify-center h-36 bg-white/[0.02]"
                 >
                   {imagePreview ? (
                     <Image src={imagePreview} alt="preview" fill className="object-contain p-2" />
@@ -354,7 +354,7 @@ export default function ProductsPage() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setField("name", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                   placeholder="Nome do produto"
                 />
               </div>
@@ -366,7 +366,7 @@ export default function ProductsPage() {
                   value={form.description}
                   onChange={(e) => setField("description", e.target.value)}
                   rows={2}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50 resize-none"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50 resize-none"
                   placeholder="Descrição opcional"
                 />
               </div>
@@ -381,7 +381,7 @@ export default function ProductsPage() {
                     step="0.01"
                     value={form.price}
                     onChange={(e) => setField("price", e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                    className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                     placeholder="0,00"
                   />
                 </div>
@@ -392,7 +392,7 @@ export default function ProductsPage() {
                     min="0"
                     value={form.stockQuantity}
                     onChange={(e) => setField("stockQuantity", e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                    className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                     placeholder="0"
                   />
                 </div>
@@ -407,7 +407,7 @@ export default function ProductsPage() {
                     min="0"
                     value={form.pointsValue}
                     onChange={(e) => setField("pointsValue", e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#D4AF37]/50"
+                    className="w-full bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-accent/50"
                     placeholder="0"
                   />
                 </div>
@@ -416,7 +416,7 @@ export default function ProductsPage() {
                   <select
                     value={form.categoryId}
                     onChange={(e) => setField("categoryId", e.target.value)}
-                    className="w-full bg-[#0d0d0d] border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50"
+                    className="w-full bg-[#0d0d0d] border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent/50"
                   >
                     <option value="">Selecionar...</option>
                     {categories.map((c) => (
@@ -446,7 +446,7 @@ export default function ProductsPage() {
                         }
                         className={`px-3 py-1.5 text-xs border transition-colors ${
                           selected
-                            ? "border-[#D4AF37] text-[#D4AF37] bg-[#D4AF37]/5"
+                            ? "border-accent text-accent bg-accent/5"
                             : "border-white/10 text-white/40 hover:border-white/30"
                         }`}
                       >
@@ -466,7 +466,7 @@ export default function ProductsPage() {
                   className="text-white/50 hover:text-white transition-colors"
                 >
                   {form.isActive
-                    ? <ToggleRight size={28} className="text-[#D4AF37]" />
+                    ? <ToggleRight size={28} className="text-accent" />
                     : <ToggleLeft size={28} />
                   }
                 </button>
@@ -485,7 +485,7 @@ export default function ProductsPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-[#D4AF37] text-black px-4 py-2.5 text-sm font-medium hover:bg-[#c4a030] transition-colors disabled:opacity-50"
+                className="flex-1 bg-accent text-black px-4 py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
               >
                 {saving ? "Salvando..." : "Salvar"}
               </button>

@@ -22,6 +22,10 @@ export class UpdateStoreDto {
   instagram?: string;
 
   @IsOptional()
+  @IsString()
+  primaryColor?: string;
+
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 }
