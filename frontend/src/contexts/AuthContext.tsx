@@ -53,11 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (formData: RegisterData) => {
-    const { data } = await api.post("/auth/register", formData);
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    setUser(data.user);
-    router.push("/dashboard");
+    await api.post("/auth/register", formData);
+    router.push("/verify-email-sent");
   };
 
   const logout = () => {

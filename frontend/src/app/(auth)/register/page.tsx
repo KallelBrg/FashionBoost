@@ -33,8 +33,9 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-    } catch {
-      setError("Erro ao criar conta. Verifique os dados e tente novamente.");
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(message ?? "Erro ao criar conta. Tente novamente.");
     } finally {
       setLoading(false);
     }

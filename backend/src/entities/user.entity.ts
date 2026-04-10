@@ -35,6 +35,12 @@ export class User {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isEmailVerified: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  emailVerificationToken: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

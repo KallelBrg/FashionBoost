@@ -17,8 +17,9 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-    } catch {
-      setError("E-mail ou senha inválidos.");
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(message ?? "E-mail ou senha inválidos.");
     } finally {
       setLoading(false);
     }
