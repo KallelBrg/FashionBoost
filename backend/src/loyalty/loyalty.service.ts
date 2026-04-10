@@ -110,6 +110,31 @@ export class LoyaltyService {
     return saved;
   }
 
+  async revokePoints(
+    storeId: string,
+    customerId: string,
+    points: number,
+    description: string,
+    referenceId?: string,
+  ): Promise<void> {
+    const loyalty = await this.findOrCreateLoyalty(storeId, customerId);
+
+    loyalty.currentPoints = Math.max(0, Number(loyalty.currentPoints) - Number(points));
+    await this.updateLoyaltyLevel(loyalty, storeId);
+    const saved = await this.customerLoyaltyRepository.save(loyalty);
+
+    const transaction = new PointsTransaction();
+    transaction.storeId = storeId;
+    transaction.customerId = customerId;
+    transaction.customerLoyaltyId = saved.id;
+    transaction.type = PointsTransactionType.ADJUST;
+    transaction.source = PointsTransactionSource.SALE;
+    transaction.points = -points;
+    transaction.description = description;
+    if (referenceId) transaction.referenceId = referenceId;
+    await this.pointsTransactionRepository.save(transaction);
+  }
+
   async adjustPoints(customerId: string, storeId: string, dto: AdjustPointsDto): Promise<CustomerLoyalty> {
     const loyalty = await this.findOrCreateLoyalty(storeId, customerId);
 

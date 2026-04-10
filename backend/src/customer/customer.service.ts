@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from '../entities/customer.entity';
+import { CustomerLoyalty } from '../entities/customer-loyalty.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 
@@ -10,6 +11,8 @@ export class CustomerService {
   constructor(
     @InjectRepository(Customer)
     private customerRepository: Repository<Customer>,
+    @InjectRepository(CustomerLoyalty)
+    private customerLoyaltyRepository: Repository<CustomerLoyalty>,
   ) {}
 
   async create(storeId: string, dto: CreateCustomerDto): Promise<Customer> {
@@ -30,10 +33,21 @@ export class CustomerService {
   }
 
   async findAll(storeId: string): Promise<Customer[]> {
-    return this.customerRepository.find({
+    const customers = await this.customerRepository.find({
       where: { storeId },
-      relations: ['loyalty', 'loyalty.loyaltyLevel'],
       order: { name: 'ASC' },
+    });
+
+    const loyalties = await this.customerLoyaltyRepository.find({
+      where: { storeId },
+      relations: ['loyaltyLevel'],
+    });
+
+    const loyaltyMap = new Map(loyalties.map((l) => [l.customerId, l]));
+
+    return customers.map((c) => {
+      (c as any).loyalty = loyaltyMap.get(c.id) ?? null;
+      return c;
     });
   }
 

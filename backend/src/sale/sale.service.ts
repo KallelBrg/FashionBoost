@@ -163,7 +163,35 @@ export class SaleService {
     if (sale.status !== SaleStatus.ACTIVE) {
       throw new BadRequestException('Apenas vendas ativas podem ter o status alterado');
     }
+
     sale.status = dto.status;
-    return this.saleRepository.save(sale);
+    const updated = await this.saleRepository.save(sale);
+
+    if (dto.status === SaleStatus.CANCELLED) {
+      const items = await this.saleItemRepository.find({ where: { saleId: id } });
+
+      // Restore stock for each item
+      for (const item of items) {
+        const product = await this.productRepository.findOne({ where: { id: item.productId } });
+        if (product) {
+          product.stockQuantity += item.quantity;
+          await this.productRepository.save(product);
+        }
+      }
+
+      // Revoke earned points
+      const totalPoints = items.reduce((sum, item) => sum + (Number(item.earnedPoints) || 0), 0);
+      if (totalPoints > 0) {
+        await this.loyaltyService.revokePoints(
+          storeId,
+          sale.customerId,
+          totalPoints,
+          `Estorno de pontos - cancelamento da venda #${sale.id}`,
+          sale.id,
+        );
+      }
+    }
+
+    return updated;
   }
 }

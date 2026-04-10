@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { Plus, Pencil, X, Users, Search } from "lucide-react";
 
 interface CustomerLoyalty {
+  currentPoints: number;
   totalPoints: number;
   loyaltyLevel?: { name: string };
 }
@@ -215,7 +216,7 @@ export default function CustomersPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-right text-accent font-medium">
-                    {c.loyalty?.totalPoints ?? "—"}
+                    {c.loyalty?.currentPoints ?? "—"}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button

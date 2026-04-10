@@ -13,6 +13,7 @@ import { CustomerModule } from './customer/customer.module';
 import { SaleModule } from './sale/sale.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
 import { CouponModule } from './coupon/coupon.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CouponModule } from './coupon/coupon.module';
     SaleModule,
     LoyaltyModule,
     CouponModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
