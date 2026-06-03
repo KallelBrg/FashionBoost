@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { StoreService } from '../store/store.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('products')
@@ -14,12 +15,22 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly storeService: StoreService,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
   @Post()
   async create(@Request() req, @Body() dto: CreateProductDto) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
-    return this.productService.create(store.id, dto);
+    const product = await this.productService.create(store.id, dto);
+    await this.auditLogService.log({
+      tenantId: req.user.tenantId,
+      userId: req.user.id,
+      action: 'PRODUTO_CRIADO',
+      entityName: 'products',
+      entityId: product.id,
+      details: `Produto "${product.name}" criado — Preço: R$ ${Number(product.price).toFixed(2)}, Estoque: ${product.stockQuantity}`,
+    });
+    return product;
   }
 
   @Get()
@@ -37,7 +48,16 @@ export class ProductController {
   @Patch(':id')
   async update(@Request() req, @Param('id') id: string, @Body() dto: UpdateProductDto) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
-    return this.productService.update(id, store.id, dto);
+    const product = await this.productService.update(id, store.id, dto);
+    await this.auditLogService.log({
+      tenantId: req.user.tenantId,
+      userId: req.user.id,
+      action: 'PRODUTO_ATUALIZADO',
+      entityName: 'products',
+      entityId: product.id,
+      details: `Produto "${product.name}" atualizado`,
+    });
+    return product;
   }
 
   @Post(':id/image')
@@ -78,6 +98,15 @@ export class ProductController {
   @Delete(':id')
   async remove(@Request() req, @Param('id') id: string) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
-    return this.productService.remove(id, store.id);
+    const product = await this.productService.findOne(id, store.id);
+    await this.productService.remove(id, store.id);
+    await this.auditLogService.log({
+      tenantId: req.user.tenantId,
+      userId: req.user.id,
+      action: 'PRODUTO_REMOVIDO',
+      entityName: 'products',
+      entityId: id,
+      details: `Produto "${product.name}" removido`,
+    });
   }
 }

@@ -15,6 +15,7 @@ import {
   Ticket,
   Settings,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 
 const navItems = [
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/dashboard/categories", label: "Categorias", icon: Tag },
   { href: "/dashboard/loyalty", label: "Níveis de Fidelidade", icon: Award },
   { href: "/dashboard/coupons", label: "Cupons", icon: Ticket },
+  { href: "/dashboard/audit", label: "Atividades", icon: ClipboardList },
   { href: "/dashboard/settings", label: "Configurações", icon: Settings },
 ];
 
@@ -34,11 +36,8 @@ export default function Sidebar() {
   const [storeName, setStoreName] = useState<string>("");
 
   useEffect(() => {
-    api.get("/stores").then((res) => {
-      const stores = res.data;
-      if (Array.isArray(stores) && stores.length > 0) {
-        setStoreName(stores[0].name);
-      }
+    api.get("/stores/me").then((res) => {
+      setStoreName(res.data.name);
     }).catch(() => {});
   }, []);
 

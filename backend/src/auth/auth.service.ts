@@ -14,6 +14,7 @@ import * as nodemailer from 'nodemailer';
 import { Tenant } from '../entities/tenant.entity';
 import { User } from '../entities/user.entity';
 import { Store } from '../entities/store.entity';
+import { LoyaltyLevel } from '../entities/loyalty-level.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -28,6 +29,8 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(Store)
     private storeRepository: Repository<Store>,
+    @InjectRepository(LoyaltyLevel)
+    private loyaltyLevelRepository: Repository<LoyaltyLevel>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {
@@ -68,6 +71,16 @@ export class AuthService {
       slug: dto.tenantSlug,
     });
     await this.storeRepository.save(store);
+
+    const defaultLevels = [
+      { name: 'Bronze', minimumPoints: 0,    benefitsDescription: 'Nível inicial. Acesso ao programa de fidelidade.' },
+      { name: 'Prata',  minimumPoints: 500,  benefitsDescription: 'Cupons exclusivos e atendimento prioritário.' },
+      { name: 'Ouro',   minimumPoints: 1500, benefitsDescription: 'Descontos especiais e brindes em datas comemorativas.' },
+      { name: 'Diamante', minimumPoints: 3000, benefitsDescription: 'Benefícios VIP, acesso antecipado a lançamentos e descontos máximos.' },
+    ];
+    await this.loyaltyLevelRepository.save(
+      defaultLevels.map((l) => this.loyaltyLevelRepository.create({ ...l, storeId: store.id })),
+    );
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const verificationToken = randomUUID();

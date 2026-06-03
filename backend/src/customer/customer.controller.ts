@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { StoreService } from '../store/store.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('customers')
@@ -11,12 +12,22 @@ export class CustomerController {
   constructor(
     private readonly customerService: CustomerService,
     private readonly storeService: StoreService,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
   @Post()
   async create(@Request() req, @Body() dto: CreateCustomerDto) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
-    return this.customerService.create(store.id, dto);
+    const customer = await this.customerService.create(store.id, dto);
+    await this.auditLogService.log({
+      tenantId: req.user.tenantId,
+      userId: req.user.id,
+      action: 'CLIENTE_CADASTRADO',
+      entityName: 'customers',
+      entityId: customer.id,
+      details: `Cliente "${customer.name}" cadastrado — CPF: ${customer.cpf}`,
+    });
+    return customer;
   }
 
   @Get()
@@ -34,6 +45,15 @@ export class CustomerController {
   @Patch(':id')
   async update(@Request() req, @Param('id') id: string, @Body() dto: UpdateCustomerDto) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
-    return this.customerService.update(id, store.id, dto);
+    const customer = await this.customerService.update(id, store.id, dto);
+    await this.auditLogService.log({
+      tenantId: req.user.tenantId,
+      userId: req.user.id,
+      action: 'CLIENTE_ATUALIZADO',
+      entityName: 'customers',
+      entityId: customer.id,
+      details: `Dados do cliente "${customer.name}" atualizados`,
+    });
+    return customer;
   }
 }

@@ -11,10 +11,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Tenant } from '../entities/tenant.entity';
 import { User } from '../entities/user.entity';
 import { Store } from '../entities/store.entity';
+import { LoyaltyLevel } from '../entities/loyalty-level.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Tenant, User, Store]),
+    TypeOrmModule.forFeature([Tenant, User, Store, LoyaltyLevel]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -14,6 +14,7 @@ import { SaleModule } from './sale/sale.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
 import { CouponModule } from './coupon/coupon.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { AuditLogModule } from './audit-log/audit-log.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     LoyaltyModule,
     CouponModule,
     DashboardModule,
+    AuditLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
