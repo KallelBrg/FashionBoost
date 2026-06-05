@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { Tenant } from '../entities/tenant.entity';
 import { User } from '../entities/user.entity';
 import { Store } from '../entities/store.entity';
@@ -20,7 +20,7 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
-  private mailer: nodemailer.Transporter;
+  private resend: Resend;
 
   constructor(
     @InjectRepository(Tenant)
@@ -34,18 +34,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {
-    this.mailer = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASS'),
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
   }
 
   async register(dto: RegisterDto) {
@@ -105,8 +94,8 @@ export class AuthService {
     const verifyUrl = `${appUrl}/verify-email?token=${verificationToken}`;
 
     try {
-      await this.mailer.sendMail({
-        from: `"FashionBoost" <${this.configService.get('MAIL_USER')}>`,
+      await this.resend.emails.send({
+        from: 'FashionBoost <onboarding@resend.dev>',
         to: dto.email,
         subject: 'Confirme seu e-mail — FashionBoost',
         html: `
