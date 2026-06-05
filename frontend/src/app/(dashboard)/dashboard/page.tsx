@@ -61,21 +61,30 @@ const TYPE_LABEL: Record<string, string> = {
   stock: "Estoque",
 };
 
+const POLL_INTERVAL_MS = 60_000;
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [insights, setInsights] = useState<Insights | null>(null);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [justRefreshed, setJustRefreshed] = useState(false);
 
-  async function fetchInsights() {
-    setLoading(true);
+  async function fetchInsights(silent = false) {
+    if (!silent) setLoading(true);
     try {
       const res = await api.get("/dashboard/insights");
       setInsights(res.data);
+      setLastUpdated(new Date());
+      if (silent) {
+        setJustRefreshed(true);
+        setTimeout(() => setJustRefreshed(false), 2000);
+      }
     } catch {
-      setInsights(null);
+      if (!silent) setInsights(null);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -85,12 +94,17 @@ export default function DashboardPage() {
     try {
       const res = await api.get("/dashboard/insights");
       setInsights(res.data);
+      setLastUpdated(new Date());
     } finally {
       setAiLoading(false);
     }
   }
 
-  useEffect(() => { fetchInsights(); }, []);
+  useEffect(() => {
+    fetchInsights();
+    const interval = setInterval(() => fetchInsights(true), POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, []);
 
   const m = insights?.metrics;
 
@@ -201,14 +215,21 @@ export default function DashboardPage() {
                 <h2 className="text-xs uppercase tracking-widest text-white/50">Sugestões da IA</h2>
                 <span className="text-xs text-accent/60 border border-accent/20 px-2 py-0.5">Llama 3.3</span>
               </div>
-              <button
-                onClick={refreshAi}
-                disabled={aiLoading}
-                className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white transition-colors disabled:opacity-40"
-              >
-                <RefreshCw size={12} className={aiLoading ? "animate-spin" : ""} />
-                Atualizar
-              </button>
+              <div className="flex items-center gap-3">
+                {lastUpdated && (
+                  <span className={`text-xs transition-colors duration-500 ${justRefreshed ? "text-accent" : "text-white/20"}`}>
+                    {justRefreshed ? "Atualizado agora" : `Atualizado às ${lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
+                  </span>
+                )}
+                <button
+                  onClick={refreshAi}
+                  disabled={aiLoading}
+                  className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white transition-colors disabled:opacity-40"
+                >
+                  <RefreshCw size={12} className={aiLoading ? "animate-spin" : ""} />
+                  Atualizar IA
+                </button>
+              </div>
             </div>
 
             {insights?.aiSummary && (

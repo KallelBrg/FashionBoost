@@ -10,6 +10,7 @@ import { SaleController } from './sale.controller';
 import { AuthModule } from '../auth/auth.module';
 import { StoreModule } from '../store/store.module';
 import { LoyaltyModule } from '../loyalty/loyalty.module';
+import { DashboardModule } from '../dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LoyaltyModule } from '../loyalty/loyalty.module';
     AuthModule,
     StoreModule,
     LoyaltyModule,
+    DashboardModule,
   ],
   controllers: [SaleController],
   providers: [SaleService],

@@ -5,6 +5,7 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleStatusDto } from './dto/update-sale-status.dto';
 import { StoreService } from '../store/store.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { DashboardService } from '../dashboard/dashboard.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('sales')
@@ -13,12 +14,14 @@ export class SaleController {
     private readonly saleService: SaleService,
     private readonly storeService: StoreService,
     private readonly auditLogService: AuditLogService,
+    private readonly dashboardService: DashboardService,
   ) {}
 
   @Post()
   async create(@Request() req, @Body() dto: CreateSaleDto) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
     const sale = await this.saleService.create(store.id, req.user.id, dto);
+    this.dashboardService.clearCache();
     await this.auditLogService.log({
       tenantId: req.user.tenantId,
       userId: req.user.id,
@@ -46,6 +49,7 @@ export class SaleController {
   async updateStatus(@Request() req, @Param('id') id: string, @Body() dto: UpdateSaleStatusDto) {
     const store = await this.storeService.findByTenant(req.user.tenantId);
     const sale = await this.saleService.updateStatus(id, store.id, dto);
+    this.dashboardService.clearCache();
     const actionMap: Record<string, string> = {
       cancelled: 'VENDA_CANCELADA',
       exchanged: 'VENDA_TROCADA',

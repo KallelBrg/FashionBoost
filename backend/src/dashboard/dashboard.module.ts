@@ -20,5 +20,6 @@ import { ConfigModule } from '@nestjs/config';
   ],
   controllers: [DashboardController],
   providers: [DashboardService],
+  exports: [DashboardService],
 })
 export class DashboardModule {}
