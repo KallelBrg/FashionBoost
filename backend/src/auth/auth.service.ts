@@ -35,10 +35,15 @@ export class AuthService {
     private configService: ConfigService,
   ) {
     this.mailer = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: this.configService.get<string>('MAIL_USER'),
         pass: this.configService.get<string>('MAIL_PASS'),
+      },
+      tls: {
+        rejectUnauthorized: false,
       },
     });
   }
@@ -99,31 +104,35 @@ export class AuthService {
     const appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
     const verifyUrl = `${appUrl}/verify-email?token=${verificationToken}`;
 
-    await this.mailer.sendMail({
-      from: `"FashionBoost" <${this.configService.get('MAIL_USER')}>`,
-      to: dto.email,
-      subject: 'Confirme seu e-mail — FashionBoost',
-      html: `
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border: 1px solid #222;">
-          <h1 style="font-size: 24px; margin-bottom: 8px;">Fashion<span style="color: #D4AF37;">Boost</span></h1>
-          <p style="color: #aaa; font-size: 14px; margin-bottom: 32px;">Plataforma de Fidelidade para Moda</p>
+    try {
+      await this.mailer.sendMail({
+        from: `"FashionBoost" <${this.configService.get('MAIL_USER')}>`,
+        to: dto.email,
+        subject: 'Confirme seu e-mail — FashionBoost',
+        html: `
+          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border: 1px solid #222;">
+            <h1 style="font-size: 24px; margin-bottom: 8px;">Fashion<span style="color: #D4AF37;">Boost</span></h1>
+            <p style="color: #aaa; font-size: 14px; margin-bottom: 32px;">Plataforma de Fidelidade para Moda</p>
 
-          <h2 style="font-size: 20px; margin-bottom: 12px;">Confirme seu e-mail</h2>
-          <p style="color: #ccc; font-size: 14px; line-height: 1.6; margin-bottom: 32px;">
-            Olá, <strong>${dto.userName}</strong>! Sua conta foi criada com sucesso.<br/>
-            Clique no botão abaixo para ativar sua conta e acessar o painel.
-          </p>
+            <h2 style="font-size: 20px; margin-bottom: 12px;">Confirme seu e-mail</h2>
+            <p style="color: #ccc; font-size: 14px; line-height: 1.6; margin-bottom: 32px;">
+              Olá, <strong>${dto.userName}</strong>! Sua conta foi criada com sucesso.<br/>
+              Clique no botão abaixo para ativar sua conta e acessar o painel.
+            </p>
 
-          <a href="${verifyUrl}" style="display: inline-block; background: #D4AF37; color: #000; font-weight: bold; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 28px; text-decoration: none;">
-            Verificar E-mail
-          </a>
+            <a href="${verifyUrl}" style="display: inline-block; background: #D4AF37; color: #000; font-weight: bold; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 28px; text-decoration: none;">
+              Verificar E-mail
+            </a>
 
-          <p style="color: #555; font-size: 12px; margin-top: 32px;">
-            Se você não criou uma conta no FashionBoost, ignore este e-mail.
-          </p>
-        </div>
-      `,
-    });
+            <p style="color: #555; font-size: 12px; margin-top: 32px;">
+              Se você não criou uma conta no FashionBoost, ignore este e-mail.
+            </p>
+          </div>
+        `,
+      });
+    } catch (mailError) {
+      console.error('[Auth] Falha ao enviar e-mail de verificação:', mailError);
+    }
 
     return { message: 'Conta criada! Verifique seu e-mail para ativar o acesso.' };
   }
